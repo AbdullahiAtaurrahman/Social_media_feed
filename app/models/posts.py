@@ -14,7 +14,7 @@ class Post(Base):
     __tablename__ = "posts"
 
     id: Mapped[int] = mapped_column(autoincrement="true")
-    user_id: Mapped[int] = mapped_column(ForeignKey(users.id))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     title: Mapped[str] = mapped_column(String(50))
     image_url: Mapped[str] = mapped_column(String(200), nullablle="True")
     visibility: Mapped[str] = mapped_column(bool=True)

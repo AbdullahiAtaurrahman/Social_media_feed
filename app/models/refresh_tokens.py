@@ -11,11 +11,17 @@ if TYPE_CHECKING:
 
 
 class Follow(Base):
-    __tablename__ = "follows"
+    __tablename__ = "refresh_tokens"
 
     id: Mapped[int] = mapped_column(autoincrement="true")
-    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    following_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    token_hash: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
+    expires_at: Mapped[datetime | None] = mapped_column(
+        server_default=func.now(), onupdate=func.now()
+    )
 
 
 Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
