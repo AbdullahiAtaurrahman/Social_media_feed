@@ -1,8 +1,8 @@
-from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models import User
-from schemas import UserCreate
+from schemas.users import UserCreate, UserUpdate
 from core.security import hash_password
 
 
@@ -22,22 +22,22 @@ async def create_user(db: AsyncSession, data: UserCreate) -> User:
 # 2
 
 
-async def get_user(db: Session, user_id: int) -> User | None:
+async def get_user(db: AsyncSession, user_id: int) -> User | None:
     return await db.get(User, user_id)  # Fastest — uses primary key
 
 
-async def get_user_by_email(db: Session, email: str) -> User | None:
+async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     stmt = select(User).where(User.email == email)
     return await db.execute(stmt).scalars().first()
 
 
-async def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[User]:
     stmt = select(User).offset(skip).limit(limit)
     return await db.execute(stmt).scalars().all()
 
 
 # With filtering
-async def get_active_users(db: Session) -> list[User]:
+async def get_active_users(db: AsyncSession) -> list[User]:
     stmt = select(User).where(User.is_active == True)
     return await db.execute(stmt).scalars().all()
 
@@ -45,8 +45,8 @@ async def get_active_users(db: Session) -> list[User]:
 # 3
 
 
-async def update_user(db: Session, user_id: int, data: UserUpdate) -> User | None:
-    user = db.get(User, user_id)
+async def update_user(db: AsyncSession, user_id: int, data: UserUpdate) -> User | None:
+    user = await db.get(User, user_id)
     if not user:
         return None
 
@@ -63,8 +63,8 @@ async def update_user(db: Session, user_id: int, data: UserUpdate) -> User | Non
 # 4
 
 
-async def delete_user(db: Session, user_id: int) -> bool:
-    user = db.get(User, user_id)
+async def delete_user(db: AsyncSession, user_id: int) -> bool:
+    user = await db.get(User, user_id)
     if not user:
         return False
     await db.delete(user)
