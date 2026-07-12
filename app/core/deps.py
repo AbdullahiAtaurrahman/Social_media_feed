@@ -1,4 +1,13 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
+from sqlalchemy.orm import Session
+from app.core.db import get_db
+from app.core.security import decode_token
+from app.repositories.user_repository import UserRepository
+from app.models.users import User
+
+
 from sqlalchemy.orm import SessionLocal
 from sqlalchemy.orm import AsyncSessionLocal
 
@@ -13,19 +22,10 @@ def get_db():
 
 
 # Async
-async def get_db():
+async def get_async_db():
     async with AsyncSessionLocal() as db:
         yield db
 
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
-from sqlalchemy.orm import Session
-from app.core.db import get_db
-from app.core.security import decode_token
-from app.repository.user_repository import UserRepository
-from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 

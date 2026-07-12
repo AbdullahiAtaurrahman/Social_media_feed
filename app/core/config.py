@@ -6,13 +6,10 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "DEBUG"  # DEBUG | STAGING | PRODUCTION
 
-    # CORS
-   
-
     # Auth
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     DATABASE_URL_ASYNC: str
     DATABASE_URL: str
@@ -27,12 +24,12 @@ class Settings(BaseSettings):
 
 @property
 def is_debug(self) -> bool:
-    return self.ENVIRONMENT == "debug"
+    return self.ENVIRONMENT == "DEBUG"
 
 
 @property
 def is_production(self) -> bool:
-    return self.ENVIRONMENT == "production"
+    return self.ENVIRONMENT == "PRODUCTION"
 
 
 settings = Settings()
