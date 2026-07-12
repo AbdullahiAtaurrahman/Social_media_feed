@@ -7,13 +7,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "DEBUG"  # DEBUG | STAGING | PRODUCTION
 
     # CORS
-    CORS_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-    ]
-
-    # Redis
-    REDIS_URL: str
+   
 
     # Auth
     SECRET_KEY: str
