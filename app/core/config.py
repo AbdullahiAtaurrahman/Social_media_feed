@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     DATABASE_URL_ASYNC: str
     DATABASE_URL: str
 
-    celery_broker_url: str
-    celery_result_backend: str
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
