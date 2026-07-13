@@ -16,7 +16,7 @@ class AuthService:
             raise HTTPException(status_code=400, detail="Username already taken")
         if UserRepository.get_by_email(db, data.email):
             raise HTTPException(status_code=400, detail="Email already registered")
-        return UserRepository.create(db, data)
+        return UserRepository.create_user(db, data)
 
     @staticmethod
     def login(db: Session, username: str, password: str) -> Token:

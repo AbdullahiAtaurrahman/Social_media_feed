@@ -1,33 +1,28 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
 
 
 class CommentBase(BaseModel):
-    username: str
-    email: EmailStr
+    content: str
 
 
 class CommentCreate(CommentBase):
-    password: str
-
-    # @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 0:
-            raise ValueError("Password must be at least 8 character")
-        return v
+    pass
 
 
 class CommentUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    bio: Optional[str] = None
+    content: str | None = None
 
 
-class CommentReponse(CommentBase):
+class CommentRead(CommentBase):
     id: int
-    is_active: bool
-    created_at: datetime
+    user_id: int
+    post_id: int
+    timestamps: datetime | None = None
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+
+CommentResponse = CommentRead
+CommentReponse = CommentRead

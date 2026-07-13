@@ -1,33 +1,41 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 
 class UserBase(BaseModel):
     username: str
     email: EmailStr
+    role: str | None = None
+    bio: str | None = None
 
 
 class UserCreate(UserBase):
     password: str
 
-    # @field_validator("password")
+    @field_validator("password")
     @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 0:
-            raise ValueError("Password must be at least 8 character")
-        return v
+    def validate_password(cls, value: str) -> str:
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return value
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    bio: Optional[str] = None
+    username: str | None = None
+    email: EmailStr | None = None
+    bio: str | None = None
+    role: str | None = None
 
 
-class UserReponse(UserBase):
+class UserRead(UserBase):
     id: int
-    is_active: bool
-    created_at: datetime
+    is_active: bool = True
+    is_superuser: bool = False
+    timestamps: datetime | None = None
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+
+UserResponse = UserRead
+UserReponse = UserRead

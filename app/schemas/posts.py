@@ -1,33 +1,34 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
 
 
 class PostBase(BaseModel):
-    username: str
-    email: EmailStr
+    title: str
+    content: str
+    image_url: str | None = None
+    visibility: bool = True
 
 
 class PostCreate(PostBase):
-    password: str
-
-    # @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 0:
-            raise ValueError("Password must be at least 8 character")
-        return v
+    pass
 
 
-class PserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    bio: Optional[str] = None
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+    image_url: str | None = None
+    visibility: bool | None = None
 
 
-class PostReponse(PostBase):
+class PostRead(PostBase):
     id: int
-    is_active: bool
-    created_at: datetime
+    user_id: int
+    timestamps: datetime | None = None
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+
+PostResponse = PostRead
+PostReponse = PostRead
+PserUpdate = PostUpdate

@@ -1,33 +1,25 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, ConfigDict
 
 
 class FollowBase(BaseModel):
-    username: str
-    email: EmailStr
+    follower_id: int
+    following_id: int
 
 
 class FollowCreate(FollowBase):
-    password: str
-
-    # @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 0:
-            raise ValueError("Password must be at least 8 character")
-        return v
+    pass
 
 
 class FollowUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    bio: Optional[str] = None
+    follower_id: int | None = None
+    following_id: int | None = None
 
 
-class FollowReponse(FollowBase):
+class FollowRead(FollowBase):
     id: int
-    is_active: bool
-    created_at: datetime
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+
+FollowResponse = FollowRead
+FollowReponse = FollowRead

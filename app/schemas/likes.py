@@ -1,33 +1,28 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
 
 
 class LikeBase(BaseModel):
-    username: str
-    email: EmailStr
+    post_id: int
+    user_id: int
 
 
 class LikeCreate(LikeBase):
-    password: str
-
-    # @field_validator("password")
-    @classmethod
-    def password_strength(cls, v: str) -> str:
-        if len(v) < 0:
-            raise ValueError("Password must be at least 8 character")
-        return v
+    pass
 
 
 class LikeUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    bio: Optional[str] = None
+    post_id: int | None = None
+    user_id: int | None = None
 
 
-class UserReponse(LikeBase):
+class LikeRead(LikeBase):
     id: int
-    is_active: bool
-    created_at: datetime
+    timestamps: datetime | None = None
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
+
+
+LikeResponse = LikeRead
+UserReponse = LikeRead
