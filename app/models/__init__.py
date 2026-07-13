@@ -1,11 +1,11 @@
 # app/models/__init__.py
 
-from .profiles import Profile  # Or wherever your declarative_base() is defined
+from app.core.db_async import Base
+from .profiles import Profile
 from .users import User
 from .posts import Post
 from .likes import Like
 from .comments import Comment
 from .follows import Follow
 
-# Explicitly list the strings to export
 __all__ = ["Base", "User", "Post", "Profile", "Like", "Comment", "Follow"]

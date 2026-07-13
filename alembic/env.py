@@ -23,7 +23,7 @@ config = context.config
 database_url = settings.DATABASE_URL
 if not database_url:
     raise ValueError("DATABASE_URL is not set in the environment variables.")
-config.get_main_option("sqlalchemy.url", database_url)
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

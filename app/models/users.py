@@ -1,6 +1,6 @@
 from typing import List, Optional, TYPE_CHECKING
-from core.db_async import Base
-from sqlalchemy.orm import file, Mapped, mapped_column
+from app.core.db_async import Base
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func, String, Text
 from datetime import datetime
 
@@ -19,7 +19,6 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(20), index=True, unique=True)
     bio: Mapped[str] = mapped_column(Text, unique=True)
     password: Mapped[str] = mapped_column(String(200), index=True, unique=True)
-    avatar_url: file
     timestamps: Mapped[datetime | None] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )

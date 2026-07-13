@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
 
-from core.db_async import Base
+from app.core.db_async import Base
 
 if TYPE_CHECKING:
     from app.models.users import User
@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 class Post(Base):
     __tablename__ = "posts"
 
-    id: Mapped[int] = mapped_column(autoincrement="true")
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     title: Mapped[str] = mapped_column(String(50))
     content: Mapped[str] = mapped_column(Text)
-    image_url: Mapped[str] = mapped_column(String(200), nullablle="True")
+    image_url: Mapped[str] = mapped_column(String(200))
     visibility: Mapped[bool] = mapped_column(default=True)
     timestamps: Mapped[datetime | None] = mapped_column(
         server_default=func.now(), onupdate=func.now()

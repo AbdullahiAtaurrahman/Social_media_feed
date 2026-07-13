@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, String, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 
-from core.db_async import Base
+from app.core.db_async import Base
 
 if TYPE_CHECKING:
     from app.models.users import User
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Comment(Base):
     __tablename__ = "comments"
 
-    id: Mapped[int] = mapped_column(autoincrement="true")
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     post_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String(50))
