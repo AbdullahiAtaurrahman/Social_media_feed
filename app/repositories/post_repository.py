@@ -1,71 +1,91 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from models import User
-from schemas import UserCreate
+from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
+from models import Post
+from schemas.posts import PostCreate, PostUpdate
 from app.core.security import hash_password
 
 
-async def create_user(db: AsyncSession, data: UserCreate) -> User:
-    hashed_pw = hash_password(data.password)  # use passlib/bcrypt
-    user = User(
-        username=data.username,
-        email=data.email,
-        hashed_password=hashed_pw,
-    )
-    db.add(user)  # Stage INSERT
-    await db.commit()  # Write to DB
-    await db.refresh(user)  # Reload — populates id, created_at, etc.
-    return user
+class PostRepository:
+    @staticmethod
+    async def get_by_id(db: AsyncSession, post_id: int) -> Post | None:
+        result = await db.execute(
+            select(Post).where(Post.id == post_id).options(selectinload(Post.owner))
+        )
+        return result.scalars().first()
 
+    @staticmethod
+    async def get_all_paginated(
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 20,
+        search: str | None = None,
+    ) -> tuple[list[Post], int]:
+        # cache_key = f"posts:list:{skip}:{limit}:{search or ''}"
+        # cached = await cache_get(cache_key)
+        # if cached:
+        #     # Return cached payload — items are dicts not ORM objects here
+        #     return cached["items"], cached["total"]
 
-# 2
+        stmt = select(Post).options(selectinload(Post.owner))
 
+        if search:
+            stmt = stmt.where(Post.title.ilike(f"%{search}%"))
 
-async def get_user(db: AsyncSession, user_id: int) -> User | None:
-    return await db.get(User, user_id)  # Fastest — uses primary key
+        # Count total (for pagination metadata)
+        count_result = await db.execute(
+            select(func.count()).select_from(stmt.subquery())
+        )
+        total = count_result.scalar()
 
+        stmt = stmt.order_by(Post.created_at.desc()).offset(skip).limit(limit)
+        result = await db.execute(stmt)
+        posts = result.scalars().all()
 
-async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
-    stmt = select(User).where(User.email == email)
-    return await db.execute(stmt).scalars().first()
+        # Serialise to dict for caching (ORM objects are not JSON-serialisable)
+        serialised = [
+            {
+                "id": p.id,
+                "title": p.title,
+                "content": p.content,
+                "user_id": p.user_id,
+                "created_at": p.created_at.isoformat(),
+            }
+            for p in posts
+        ]
+        # await cache_set(cache_key, {"items": serialised, "total": total}, ttl=60)
 
+        return posts, total
 
-async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[User]:
-    stmt = select(User).offset(skip).limit(limit)
-    return await db.execute(stmt).scalars().all()
+    @staticmethod
+    async def get_by_user(db: AsyncSession, user_id: int) -> list[Post]:
+        result = await db.execute(
+            select(Post).where(Post.user_id == user_id).order_by(Post.created_at.desc())
+        )
+        return result.scalars().all()
 
+    @staticmethod
+    async def create(db: AsyncSession, data: PostCreate, user_id: int) -> Post:
+        post = Post(title=data.title, content=data.content, user_id=user_id)
+        db.add(post)
+        await db.flush()
+        await db.refresh(post)
+        # Invalidate list cache so new post appears immediately
+        # await cache_delete_pattern("posts:list:*")
+        return post
 
-# With filtering
-async def get_active_users(db: AsyncSession) -> list[User]:
-    stmt = select(User).where(User.is_active == True)
-    return await db.execute(stmt).scalars().all()
+    @staticmethod
+    async def update(db: AsyncSession, post: Post, data: PostUpdate) -> Post:
+        fields = data.model_dump(exclude_unset=True)
+        for key, value in fields.items():
+            setattr(post, key, value)
+        await db.flush()
+        await db.refresh(post)
+        # await cache_delete_pattern("posts:list:*")
+        return post
 
-
-# 3
-
-
-async def update_user(db: AsyncSession, user_id: int, data: UserUpdate) -> User | None:
-    user = await db.get(User, user_id)
-    if not user:
-        return None
-
-    # model_dump(exclude_unset=True) only returns fields actually sent
-    updates = data.model_dump(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(user, field, value)
-
-    await db.commit()
-    await db.refresh(user)
-    return user
-
-
-# 4
-
-
-async def delete_user(db: AsyncSession, user_id: int) -> bool:
-    user = await db.get(User, user_id)
-    if not user:
-        return False
-    await db.delete(user)
-    await db.commit()
-    return True
+    @staticmethod
+    async def delete(db: AsyncSession, post: Post) -> None:
+        await db.delete(post)
+        await db.flush()
+        # await cache_delete_pattern("posts:list:*")

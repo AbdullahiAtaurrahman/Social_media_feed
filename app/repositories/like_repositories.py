@@ -1,71 +1,25 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models import User
-from schemas import UserCreate
-from app.core.security import hash_password
+from models import Like
+from schemas.likes import LikeCreate
 
 
-def create_user(db: Session, data: UserCreate) -> User:
-    hashed_pw = hash_password(data.password)  # use passlib/bcrypt
-    user = User(
-        username=data.username,
-        email=data.email,
-        hashed_password=hashed_pw,
-    )
-    db.add(user)  # Stage INSERT
-    db.commit()  # Write to DB
-    db.refresh(user)  # Reload — populates id, created_at, etc.
-    return user
+class LikeRepository:
+    @staticmethod
+    async def create_like(db: AsyncSession, post_id: int, user_id: int) -> Like:
+        like = Like(post_id=post_id, user_id=user_id)
+        db.add(like)
+        await db.commit()
+        await db.refresh(like)
+        return like
 
+    @staticmethod
+    async def get_like(db: AsyncSession, post_id: int, user_id: int) -> Like | None:
+        stmt = select(Like).where(Like.post_id == post_id, Like.user_id == user_id)
+        result = await db.execute(stmt)
+        return result.scalars().first()
 
-# 2
-
-
-def get_user(db: Session, user_id: int) -> User | None:
-    return db.get(User, user_id)  # Fastest — uses primary key
-
-
-def get_user_by_email(db: Session, email: str) -> User | None:
-    stmt = select(User).where(User.email == email)
-    return db.execute(stmt).scalars().first()
-
-
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
-    stmt = select(User).offset(skip).limit(limit)
-    return db.execute(stmt).scalars().all()
-
-
-# With filtering
-def get_active_users(db: Session) -> list[User]:
-    stmt = select(User).where(User.is_active == True)
-    return db.execute(stmt).scalars().all()
-
-
-# 3
-
-
-def update_user(db: Session, user_id: int, data: UserUpdate) -> User | None:
-    user = db.get(User, user_id)
-    if not user:
-        return None
-
-    # model_dump(exclude_unset=True) only returns fields actually sent
-    updates = data.model_dump(exclude_unset=True)
-    for field, value in updates.items():
-        setattr(user, field, value)
-
-    db.commit()
-    db.refresh(user)
-    return user
-
-
-# 4
-
-
-def delete_user(db: Session, user_id: int) -> bool:
-    user = db.get(User, user_id)
-    if not user:
-        return False
-    db.delete(user)
-    db.commit()
-    return True
+    @staticmethod
+    async def delete_like(db: AsyncSession, like: Like) -> None:
+        db.delete(like)
+        await db.commit()
