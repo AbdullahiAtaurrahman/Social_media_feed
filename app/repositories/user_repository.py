@@ -1,8 +1,8 @@
-# from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models import User
-from schemas.users import UserCreate, UserUpdate
+
+from app.models.users import User
+from app.schemas.users import UserCreate, UserUpdate
 from app.core.security import hash_password
 
 
@@ -13,7 +13,7 @@ class UserRepository:
         user = User(
             username=data.username,
             email=data.email,
-            hashed_password=hashed_pw,
+            password=hashed_pw,
         )
         db.add(user)  # Stage INSERT
         await db.commit()  # Write to DB
