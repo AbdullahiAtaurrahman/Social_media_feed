@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "DEBUG"  # DEBUG | STAGING | PRODUCTION
 
+    CORS_ORIGIN: list[str]
+
     # Auth
     SECRET_KEY: str
     ALGORITHM: str
@@ -13,6 +15,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL_ASYNC: str
     DATABASE_URL: str
+
+    REDIS_URL: str
 
     CELERY_BROKER_URL: str
     CELERY_RESULT_BACKEND: str
