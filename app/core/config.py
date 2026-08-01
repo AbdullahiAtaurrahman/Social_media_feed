@@ -25,15 +25,13 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
 
+    @property
+    def is_debug(self) -> bool:
+        return self.ENVIRONMENT == "DEBUG"
 
-@property
-def is_debug(self) -> bool:
-    return self.ENVIRONMENT == "DEBUG"
-
-
-@property
-def is_production(self) -> bool:
-    return self.ENVIRONMENT == "PRODUCTION"
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT == "PRODUCTION"
 
 
 settings = Settings()
