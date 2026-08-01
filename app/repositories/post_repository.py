@@ -4,6 +4,7 @@ from sqlalchemy.orm import selectinload
 from models import Post
 from schemas.posts import PostCreate, PostUpdate
 from app.core.security import hash_password
+from app.models.posts import Post
 
 
 class PostRepository:
