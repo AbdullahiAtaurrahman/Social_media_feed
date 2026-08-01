@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Profile(Base):
     __tablename__ = "profiles"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
     bio: Mapped[str | None] = mapped_column(Text)
     profile_image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)

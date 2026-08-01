@@ -7,18 +7,20 @@ from app.core.db_async import Base
 
 if TYPE_CHECKING:
     from app.models.users import User
+    from app.models.posts import Post
 
 
 class Comment(Base):
     __tablename__ = "comments"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    post_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     content: Mapped[str] = mapped_column(String(50))
     timestamps: Mapped[datetime | None] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
 
-
-Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
+    Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
+    post: Mapped["Post"] = relationship(back_populates="comments")
+    author: Mapped["User"] = relationship(back_populates="comments")

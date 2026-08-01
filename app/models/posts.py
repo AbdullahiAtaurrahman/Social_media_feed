@@ -8,13 +8,15 @@ from app.core.db_async import Base
 
 if TYPE_CHECKING:
     from app.models.users import User
+    from app.models.comments import Comment
+    from app.models.likes import Like
 
 
 class Post(Base):
     __tablename__ = "posts"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     title: Mapped[str] = mapped_column(String(50))
     content: Mapped[str] = mapped_column(Text)
     image_url: Mapped[str] = mapped_column(String(200))
@@ -22,6 +24,8 @@ class Post(Base):
     timestamps: Mapped[datetime | None] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
-
-Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
+    owner: Mapped["User"] = relationship(back_populates="posts")
+    comments: Mapped[list["Comment"]] = relationship(back_populates="post")
+    likes: Mapped[list["Like"]] = relationship(back_populates="post")

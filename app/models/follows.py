@@ -14,8 +14,12 @@ class Follow(Base):
     __tablename__ = "follows"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    follower_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    following_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    follower_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), index=True, unique=True
+    )
+    following_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), index=True, unique=True
+    )
 
-
-Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
+    follower: Mapped["User"] = relationship(foreign_keys=[follower_id])
+    following: Mapped["User"] = relationship(foreign_keys=[following_id])

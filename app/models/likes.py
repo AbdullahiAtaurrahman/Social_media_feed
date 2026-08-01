@@ -14,11 +14,10 @@ class Like(Base):
     __tablename__ = "likes"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    post_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), unique=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
     timestamps: Mapped[datetime | None] = mapped_column(
         server_default=func.now(), onupdate=func.now()
     )
 
-
-Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")
+    Owner: Mapped["User"] = relationship("User", back_populates="posts", lazy="joined")

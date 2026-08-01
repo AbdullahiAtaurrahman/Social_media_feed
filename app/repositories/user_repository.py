@@ -13,7 +13,9 @@ class UserRepository:
         user = User(
             username=data.username,
             email=data.email,
-            password=hashed_pw,
+            hashed_password=hashed_pw,
+            role="user",
+            is_superuser=False,
         )
         db.add(user)  # Stage INSERT
         await db.commit()  # Write to DB
@@ -28,25 +30,29 @@ class UserRepository:
     @staticmethod
     async def get_by_username(db: AsyncSession, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
-        return await db.execute(stmt).scalars().first()
+        result = await db.execute(stmt)
+        return result.scalars().first()
 
     @staticmethod
     async def get_by_email(db: AsyncSession, email: str) -> User | None:
         stmt = select(User).where(User.email == email)
-        return await db.execute(stmt).scalars().first()
+        result = await db.execute(stmt)
+        return result.scalars().first()
 
     @staticmethod
     async def get_users(
         db: AsyncSession, skip: int = 0, limit: int = 100
     ) -> list[User]:
         stmt = select(User).offset(skip).limit(limit)
-        return await db.execute(stmt).scalars().all()
+        result = await db.execute(stmt)
+        return result.scalars().all()
 
     # With filtering
     @staticmethod
     async def get_active_users(db: AsyncSession) -> list[User]:
         stmt = select(User).where(User.is_active == True)
-        return await db.execute(stmt).scalars().all()
+        result = await db.execute(stmt)
+        return result.scalars().all()
 
     # 3
     @staticmethod

@@ -7,5 +7,6 @@ from .posts import Post
 from .likes import Like
 from .comments import Comment
 from .follows import Follow
+from .refresh_tokens import RefreshTokens
 
 __all__ = ["Base", "User", "Post", "Profile", "Like", "Comment", "Follow"]
