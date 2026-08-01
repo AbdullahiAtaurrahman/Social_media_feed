@@ -7,11 +7,11 @@ from schemas.follows import FollowCreate
 class FollowRepository:
     @staticmethod
     async def create_follow(db: AsyncSession, follow_data: FollowCreate) -> Follow:
-        follow = Follow(**follow_data.dict())
-        db.add(follow)
+        following_id = Follow(**follow_data.dict())
+        db.add(following_id)
         await db.commit()
-        await db.refresh(follow)
-        return follow
+        await db.refresh(following_id)
+        return following_id
 
     @staticmethod
     async def get_follow(

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models import Like
-from schemas.likes import LikeCreate
+from app.models.likes import Like
+from fastapi import HTTPException
 
 
 class LikeRepository:
@@ -21,5 +21,12 @@ class LikeRepository:
 
     @staticmethod
     async def delete_like(db: AsyncSession, like: Like) -> None:
-        db.delete(like)
-        await db.commit()
+        if like:
+            await db.delete(like)
+            await db.commit()
+
+        else:
+            HTTPException(
+                status_code=400,
+                detail="Can't unlike if there is you haven't liked stuff",
+            )

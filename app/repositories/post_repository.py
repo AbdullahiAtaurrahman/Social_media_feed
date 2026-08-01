@@ -1,10 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
-from models import Post
-from schemas.posts import PostCreate, PostUpdate
-from app.core.security import hash_password
 from app.models.posts import Post
+from schemas.posts import PostCreate, PostUpdate
 
 
 class PostRepository:
@@ -22,11 +20,6 @@ class PostRepository:
         limit: int = 20,
         search: str | None = None,
     ) -> tuple[list[Post], int]:
-        # cache_key = f"posts:list:{skip}:{limit}:{search or ''}"
-        # cached = await cache_get(cache_key)
-        # if cached:
-        #     # Return cached payload — items are dicts not ORM objects here
-        #     return cached["items"], cached["total"]
 
         stmt = select(Post).options(selectinload(Post.owner))
 

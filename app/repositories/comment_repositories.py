@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models import Comment
-from schemas.comments import CommentCreate
+from app.models.comments import Comment
+from app.schemas.comments import CommentCreate
 
 
 class CommentRepository:
@@ -14,6 +14,18 @@ class CommentRepository:
         await db.commit()
         await db.refresh(comment)
         return comment
+
+    @staticmethod
+    async def get_by_id(db: AsyncSession, post_id: int) -> list[Comment]:
+        stmt = select(Comment).where(Comment.post_id == post_id)
+        result = await db.execute(stmt)
+        return result.scalars().first()
+
+    @staticmethod
+    async def get_by_post(db: AsyncSession, post: str) -> list[Comment]:
+        stmt = select(Comment).where(Comment.post == post)
+        result = await db.execute(stmt)
+        return result.scalars().first()
 
     @staticmethod
     async def get_comments_by_post(db: AsyncSession, post_id: int) -> list[Comment]:
