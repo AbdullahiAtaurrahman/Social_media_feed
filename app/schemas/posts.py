@@ -24,11 +24,11 @@ class PostUpdate(BaseModel):
 class PostRead(PostBase):
     id: int
     user_id: int
-    timestamps: datetime | None = None
+    created_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 PostResponse = PostRead
 PostReponse = PostRead
-PserUpdate = PostUpdate
+PostUpdate = PostUpdate
