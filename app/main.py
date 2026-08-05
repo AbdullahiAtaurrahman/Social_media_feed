@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.middleware import TimingMiddleware
+from app.api.v1.posts import router as posts_router
 
 
 from app.core.config import settings
@@ -23,7 +24,5 @@ app.middleware(
 
 app.add_middleware(TimingMiddleware)
 
-
-from app.api.v1.posts import router as posts_router
 
 app.include_router(posts_router, prefix=settings.API_V1_STR)
